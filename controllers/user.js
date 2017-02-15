@@ -1,9 +1,9 @@
-// 'use strict'
+'use strict'
 
 // const User = require('../models/user')
 
-// module.exports.new = (req, res) =>
-//   res.render('register')
+module.exports.new = (req, res) =>
+  res.render('register')
 
 // module.exports.create = ({ body: { email, password, confirmation } }, res, err) => {
 //   if (password === confirmation) {

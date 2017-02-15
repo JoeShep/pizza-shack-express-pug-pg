@@ -1,9 +1,8 @@
 'use strict'
 const express = require('express');
 const bodyParser = require('body-parser');
-// const passport = require('passport');
-// const session = require('express-session');
-// const RedisStore = require('connect-redis')(session);
+const passport = require('passport');
+const session = require('express-session');
 const { cyan, red } = require('chalk');
 
 const routes = require('./routes/'); // same as ./routes/index.js
@@ -22,7 +21,7 @@ if (process.env.NODE_ENV !== 'production') {
   app.locals.pretty = true
 }
 
-app.locals.company = '🍕 Pizza de Scott'
+app.locals.company = "🍕 Pizza Shack"
 app.locals.errors = {} // errors & body added to avoid guard statements
 app.locals.body = {} // i.e. value=(body && body.name) vs. value=body.name
 
