@@ -1,10 +1,12 @@
-'use strict'
+'use strict';
 
-const mongoose = require('mongoose')
+const { bookshelf } = require('../db/database');
 
-module.exports = mongoose.model('Contact', {
-  name: String,
-  email: String,
-  phone: String,
-  message: String,
-})
+// console.log("bookshelf in model", bookshelf );
+
+var Contact = bookshelf.Model.extend({
+  tableName: 'contacts'
+});
+
+module.exports = Contact;
+
