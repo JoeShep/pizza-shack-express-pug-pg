@@ -29,25 +29,35 @@ module.exports.new = (req, res, err) =>
     )
     .catch(err)
 
-module.exports.create = ({ body }, res, err) => {}
-  // Order
-  //   .create(body)
-  //   .then(() => res.redirect('/'))
-  //   .catch(({ errors }) =>
-  //     Promise.all([ // retrieve sizes and toppings again,
-  //       Promise.resolve(errors), // but pass the errors along as well
-  //       Size.find().sort({ inches: 1 }),
-  //       Topping.find().sort({ name: 1 }),
-  //     ])
-  //   )
-  //   .then(([
-  //       errors,
-  //       sizes,
-  //       toppings,
-  //     ]) =>
-  //     // UI/UX additions
-  //     // send errors to renderer to change styling and add error messages
-  //     // also, send the req.body to use as initial form input values
-  //     res.render('order', { page: 'Order', sizes, toppings, errors, body })
-  //   )
-  //   .catch(err)
+module.exports.create = ({ body }, res, err) =>
+  Order.forge(body)
+    .save()
+    .then((orderObj) => res.redirect('/'))
+    // If it errors, redraw the page and add errors
+    .catch(({ errors }) =>
+      Promise.all([ // retrieve sizes and toppings again,
+        Promise.resolve(errors), // but pass the errors along as well
+        Size().select()
+        .then( (rows) => {
+          return rows
+        })
+        .catch( (error) => {
+          throw error
+        }),
+        Topping().select()
+        .then( (rows) => {
+          return rows
+        })
+        .catch( (error) => {
+          throw error
+        })
+      ])
+    )
+    .then(([errors, sizes, toppings]) =>
+      // UI/UX additions
+      // send errors to renderer to change styling and add error messages
+      // also, send the req.body to use as initial form input values so
+      // user can resubmit withour filling the damn thing out again
+      res.render('order', { page: 'Order', sizes, toppings, errors, body })
+    )
+    .catch(err)

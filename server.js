@@ -1,9 +1,14 @@
 'use strict'
-const express = require('express');
-const bodyParser = require('body-parser');
-const passport = require('passport');
-const session = require('express-session');
-const { cyan, red } = require('chalk');
+
+const express = require('express')
+// For grabbing the form inputs 
+const bodyParser = require('body-parser')
+// For OAuth
+const passport = require('passport')
+// For user session persistence
+const session = require('express-session')
+const { cyan, red } = require('chalk')
+const KnexSessionStore = require('connect-session-knex')(session);
 
 const routes = require('./routes/'); // same as ./routes/index.js
 // const { connect } = require('./db/database');
@@ -21,9 +26,14 @@ if (process.env.NODE_ENV !== 'production') {
   app.locals.pretty = true
 }
 
+// "app.locals" You can access local variables in templates rendered within the application. 
+// This is useful for providing helper functions to templates, 
+// as well as application-level data
 app.locals.company = "🍕 Pizza Shack"
 app.locals.errors = {} // errors & body added to avoid guard statements
 app.locals.body = {} // i.e. value=(body && body.name) vs. value=body.name
+// Silly ex to show in order template
+app.locals.body.magic = "fooooooo!"
 
 // middlewares
 // app.use(session({
@@ -51,6 +61,10 @@ app.locals.body = {} // i.e. value=(body && body.name) vs. value=body.name
 // })
 
 app.use(express.static('public'))
+// 'urlencoded' parses the text as URL encoded data (which is how browsers tend to send form data from regular forms set to POST) 
+// and exposes the resulting object (containing the keys and values) on req.body. 
+// The extended option allows to choose between parsing the URL-encoded data with the querystring library (when false) 
+// or the qs library (when true). 
 app.use(bodyParser.urlencoded({ extended: false }))
 
 // routes
