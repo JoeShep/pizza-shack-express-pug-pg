@@ -1,7 +1,9 @@
 'use strict'
 
-const mongoose = require('mongoose')
+const { bookshelf } = require('../db/database');
 
-module.exports = mongoose.model('Topping', {
-  name: String,
-})
+const Topping = bookshelf.Model.extend({
+  tableName: 'toppings'
+});
+
+module.exports = Topping;

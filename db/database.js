@@ -10,6 +10,10 @@ const config = require('../knexfile.js')[environment];
 const knex = require('knex')(config);
 const bookshelf = require('bookshelf')(knex);
 
+// Resolve circular dependencies with relations, ie models requiring each other
+// when defining relationships
+bookshelf.plugin('registry');
+
 // console.log("bookshelf in db", bookshelf.Model );
 module.exports = { knex, bookshelf };
 

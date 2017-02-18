@@ -5,7 +5,10 @@ block content
     each err in errors
       h1= err.message
   .heading
-    h1 Order
+    h1 Order 
+    //- Just a demo example of app.locals
+    h2= body.magic
+    //- 
   .order-form
     form(method='POST')
       .form-group(class={'has-error': errors.name})
@@ -52,14 +55,11 @@ block content
             ) #{size.name}: #{size.inches}"
         if errors.size
           span.help-block= errors.size.message
-      .form-group(class={'has-error': errors.toppings})
-        label.control-label(for='toppings') Toppings
-        select.form-control#toppings(name='toppings' multiple)
-          each topping in toppings
-            option(
-              value=topping.name
-              selected=(body.toppings && body.toppings.includes(topping.name))
-            )= topping.name
+      #toppings(name='toppings' class={'has-error': errors.toppings})
+        h5 Toppings
+        each topping in toppings
+          label= topping.name
+            input(type='checkbox' value=topping.name selected=(body.toppings && body.toppings.includes(topping.name)))
         if errors.toppings
           span.help-block= errors.toppings.message
       .order-form__submit

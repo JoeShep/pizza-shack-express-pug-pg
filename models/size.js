@@ -1,8 +1,11 @@
 'use strict'
 
-const mongoose = require('mongoose')
+const { bookshelf } = require('../db/database');
 
-module.exports = mongoose.model('Size', {
-  name: String,
-  inches: Number,
-})
+const Size = bookshelf.Model.extend({
+  tableName: 'sizes'
+});
+
+module.exports = Size;
+
+

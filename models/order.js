@@ -1,18 +1,30 @@
-'use strict'
+'use strict';
 
-const mongoose = require('mongoose')
+const { bookshelf } = require('../db/database');
+require('./size');
+require('./topping');
 
+// TODO: Add form validation
 const HTML5_EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
 
-module.exports = mongoose.model('Order', {
-  name: { type: String, required: [true, 'Please enter a name'] },
-  email: {
-    type: String,
-    lowercase: true,
-    required: true,
-    match: [HTML5_EMAIL_REGEX, 'Please enter a valid email address'],
+var Order = bookshelf.Model.extend({
+  tableName: 'orders',
+  toppings: function() {
+    return this.hasMany('Topping');
   },
-  phone: { type: String, required: [true, 'Please enter a phone number'] },
-  size: { type: Number, required: [true, 'Please select a valid size'] },
-  toppings: { type: [String], default: ['Cheese'] },
-})
+  size: function() {
+    return this.hasOne('Size');
+  }
+});
+
+// TODO: Understand this better (at all)
+// Other models without relatonships can just do this:
+// module.exports = Order;
+
+// We have to do this to register Order as a string on the Bookshelf.model prop (?)
+module.exports = bookshelf.model('Order', Order);
+// Here we’re registering our Order model as the string 'Order'. 
+// Now we’ll be able to reference the User model using a string 
+// rather than assigning it to a variable 
+// (that’s what gets us the circular dependency error to begin with)
+// http://billpatrianakos.me/blog/2015/11/30/how-to-structure-bookshelf-dot-js-models/
