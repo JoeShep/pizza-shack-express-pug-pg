@@ -8,28 +8,21 @@ module.exports.new = (req, res) => {
 };
                          // Remember nested destructuring?   
 module.exports.create = ({ body: { email, password, confirmation } }, res, err) => {
-  console.log("create user called")
-  User.forge({email, password})
-  .save()
-  .then( (model) => {
-    console.log(model); // logs hashed and salted password!
-    res.redirect('/');
-  });
-}
-
-// module.exports.create = ({ body: { email, password, confirmation } }, res, err) => {
-//   if (password === confirmation) {
-//     User.findOneByEmail(email)
-//       .then(user => {
-//         if (user) {
-//           return res.render('register', { msg: 'Email is already registered' })
-//         }
-
-//         return User.create({ email, password })
-//       })
-//       .then(() => res.redirect('/login'))
-//       .catch(err)
-//   } else {
-//     res.render('register', { msg: 'Password & password confirmation do not match' })
-//   }
-// }
+  if (password === confirmation) {
+    User.findOneByEmail(email)
+    .then( (user) => {
+      if (user) return res.render('register', { msg: 'Email is already registered' });
+      return User.forge({email, password})
+      .save()
+      .then( () => {
+        res.redirect('/');
+      })
+      .catch( (err) => {
+        res.render('register', { msg: 'Dang. There was a problem. Please try again' });
+      })
+    })
+    .catch( (err) => res.render('register', { msg: 'Oops. There was a problem. Please try again' }));
+  } else {
+    res.render('register', { msg: 'Password & password confirmation do not match' })
+  }
+};
