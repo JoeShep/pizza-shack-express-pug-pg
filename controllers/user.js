@@ -1,9 +1,21 @@
 'use strict'
 
-// const User = require('../models/user')
+const User = require('../models/user')
 
-module.exports.new = (req, res) =>
+module.exports.new = (req, res) => {
+  console.log("rendering new register page")
   res.render('register')
+};
+                         // Remember nested destructuring?   
+module.exports.create = ({ body: { email, password, confirmation } }, res, err) => {
+  console.log("create user called")
+  User.forge({email, password})
+  .save()
+  .then( (model) => {
+    console.log(model); // logs hashed and salted password!
+    res.redirect('/');
+  });
+}
 
 // module.exports.create = ({ body: { email, password, confirmation } }, res, err) => {
 //   if (password === confirmation) {

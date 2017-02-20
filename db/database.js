@@ -14,6 +14,9 @@ const bookshelf = require('bookshelf')(knex);
 // when defining relationships
 bookshelf.plugin('registry');
 
+// The plugin we will use to salt and hash our user passwords
+bookshelf.plugin(require('bookshelf-bcrypt'));
+
 // console.log("bookshelf in db", bookshelf.Model );
 module.exports = { knex, bookshelf };
 
