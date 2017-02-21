@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
-module.exports.index = (req, res) =>
+module.exports.index = (req, res) => 
   res.render('index')

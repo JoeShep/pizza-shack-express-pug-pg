@@ -9,4 +9,3 @@ const Contact = bookshelf.Model.extend({
 });
 
 module.exports = Contact;
-

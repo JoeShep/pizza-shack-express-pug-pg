@@ -4,6 +4,7 @@
   "description": "",
   "main": "server.js",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.15.2",
     "bookshelf": "^0.10.3",
     "bookshelf-bcrypt": "^2.1.0",

@@ -1,0 +1,44 @@
+
+passport.authenticate()-----------
+                                 |  
+                                 |  invokes 
+                                \./
+       passport.use(new LocalStrategy(
+            function(username, password, done) {
+
+           // match req.body.username and req.body.password from any 
+              //data base or in memory array
+               if(user_is_found_and_pass_match)
+                  done(null,user);--
+               else                   | *1-user passed
+                                      |
+                  done(null,false);---| *2-user not passed
+       });                            | 
+                                      |return back to
+passport.authenticate() <------------ |
+                      |
+                      |----- if user is passed in done() (*1) ,   
+                            |
+    req.login()   <--------- 
+              |
+ //authenticate() middleware  may  invoke req.login() automatically.
+              |
+              | calls
+             \./  
+ passport.serializeUser(function(user, done) {
+        done(null, user.id); 
+                     |
+//use 'id'to serialize, you can use other or user object itself
+    });              |-->saved to session req.session.passport.user = {id:'..'}
+                     |
+                     |__________________
+                                       |          
+    passport.deserializeUser(function(id, done) {
+                      ________________|
+                      | 
+        User.findById(id, function(err, user) {
+            done(err, user);
+                       |______________>user object ataches to the request as req.user
+
+     });
+});

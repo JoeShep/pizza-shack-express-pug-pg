@@ -3,15 +3,15 @@
 const express = require('express')
 // For grabbing the form inputs 
 const bodyParser = require('body-parser')
-// For OAuth
+// For auth
 const passport = require('passport')
 // For user session persistence
 const session = require('express-session')
-const { cyan, red } = require('chalk')
 const KnexSessionStore = require('connect-session-knex')(session);
+// to pretty up our error messages
+const { cyan, red } = require('chalk')
 
 const routes = require('./routes/'); // same as ./routes/index.js
-// const { connect } = require('./db/database');
 
 const app = express()
 
@@ -35,32 +35,54 @@ app.locals.body = {} // i.e. value=(body && body.name) vs. value=body.name
 // Silly ex to show in order template
 app.locals.body.magic = "fooooooo!"
 
-// middlewares
-// app.use(session({
-//   store: new RedisStore({
-//     url: process.env.REDIS_URL || 'redis://localhost:6379',
-//   }),
-//   resave: false,
-//   saveUninitialized: false,
-//   secret: process.env.SESSION_SECRET || 'pizzadescottsupersecretkey',
-// }))
+// middlewares -- Note how next() is called. Other MWs also call it from their code (like 'routes')
+// Now we have a session property that all route requests can access to get current user info
+const { knex } = require('./db/database');
+app.use(session({
+  store: new KnexSessionStore({
+    knex: knex, // or just knex if using shorthand
+    tablename: 'sessions' // optional. Defaults to 'sessions'
+    // url: process.env.REDIS_URL || 'redis://localhost:6379',
+  }),
+  // necessary to set, but don't worry about what it means
+  resave: false,
+  // ditto
+  saveUninitialized: false,
+  // This is the secret used to sign the session ID cookie
+  secret: process.env.SESSION_SECRET || 'pizzashacksupersecretkey',
+}))
 
-// require('./lib/passport-strategies')
-// app.use(passport.initialize())
-// app.use(passport.session())
+// Don't need a varable to require something. Weird, eh?
+require('./lib/passport-strategies')
+app.use(passport.initialize())
+// passport.session() acts as a middleware to alter the req object and change the 'user' value 
+// that is currently the session id (from the client cookie) into the true deserialized user object.
+// It is equivalent to app.use(passport.authenticate('session'));
+// So in effect, you are authenticating the user with every request, even though this authentication 
+// doesn't need to look up a database or oauth as in the login response. 
 
-// app.use((req, res, next) => {
-//   app.locals.email = req.user && req.user.email
-//   next()
-// })
+// BUT isn't this what we are doing in the deserialize function by looking up 'users'?
 
-// app.use(({ method, url, headers: { 'user-agent': agent } }, res, next) => {
-//   const timeStamp = new Date()
-//   console.log(`[${timeStamp}] "${cyan(`${method} ${url}`)}" "${agent}"`)
-//   next()
-// })
+// So passport will treat session authentication also as yet another authentication strategy. 
+// This is why we have to serialize and deserialize as part of passport setup.
+app.use(passport.session())
+
+// wazzup here? setting 'email' to true if both user and user.email exist on the req object
+app.use((req, res, next) => {
+  // **********************user not being set on locals! **************************
+  app.locals.email = req.user && req.user.email
+  next()
+})
+
+app.use(({ method, url, headers: { 'user-agent': agent } }, res, next) => {
+  const timeStamp = new Date()
+  console.log(`[${timeStamp}] "${cyan(`${method} ${url}`)}" "${agent}"`)
+  next()
+})
 
 app.use(express.static('public'))
+
+// get info from html forms.
 // 'urlencoded' parses the text as URL encoded data (which is how browsers tend to send form data from regular forms set to POST) 
 // and exposes the resulting object (containing the keys and values) on req.body. 
 // The extended option allows to choose between parsing the URL-encoded data with the querystring library (when false) 
@@ -70,21 +92,23 @@ app.use(bodyParser.urlencoded({ extended: false }))
 // routes
 app.use(routes)
 
-// Custom 404 page
+// Custom 404 page <--- no next() here. How does it not hang? res.render() is the key.
 app.use((req, res) =>
   res.render('404')
 )
 
 // Error handling middleware
-app.use((
-    err,
-    { method, url, headers: { 'user-agent': agent } },
-    res,
-    next
-  ) => {
+// You define error-handling middleware last, after other app.use() and routes calls
+// https://expressjs.com/en/guide/error-handling.html
+// Responses from within a middleware function can be in any format that you prefer, 
+// such as an HTML error page, a simple message, or a JSON string.
+// How is this picked up in the sequence of events if the above res.render ends it? 
+// I guess that's a different end of the cycle?
+app.use((err, { method, url, headers: { 'user-agent': agent } }, res, next) => {
   if (process.env.NODE_ENV === 'production') {
     res.sendStatus(err.status || 500)
   } else {
+    // Send the stack trace as a response, for debugging purposes
     res.set('Content-Type', 'text/plain').send(err.stack)
   }
 
@@ -97,15 +121,6 @@ app.use((
   )
   console.error(err.stack)
 })
-
-// Listen to requests on the provided port and log when available
-// connect()
-//   .then(() => {
-//     app.listen(port, () =>
-//       console.log(`Listening on port: ${port}`)
-//     )
-//   })
-//   .catch(console.error)
 
 app.listen(port, () =>
   console.log(`Listening on port: ${port}`)

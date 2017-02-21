@@ -7,7 +7,10 @@ require('./topping');
 // TODO: Add form validation
 const HTML5_EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
 
-var Order = bookshelf.Model.extend({
+// Note how we're connecting the Order model to Topping and Size:
+// BUT, our migrations also need to define a relationship between 
+// the tables the model represents based on foreign keys.
+const Order = bookshelf.Model.extend({
   tableName: 'orders',
   toppings: function() {
     return this.hasMany('Topping');
@@ -24,7 +27,7 @@ var Order = bookshelf.Model.extend({
 // We have to do this to register Order as a string on the Bookshelf.model prop (?)
 module.exports = bookshelf.model('Order', Order);
 // Here we’re registering our Order model as the string 'Order'. 
-// Now we’ll be able to reference the User model using a string 
+// Now we’ll be able to reference the Order model using a string 
 // rather than assigning it to a variable 
 // (that’s what gets us the circular dependency error to begin with)
 // http://billpatrianakos.me/blog/2015/11/30/how-to-structure-bookshelf-dot-js-models/
