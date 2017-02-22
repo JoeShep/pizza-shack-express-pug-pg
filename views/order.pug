@@ -28,7 +28,7 @@ block content
           type='email'
           name='email'
           placeholder='you@example.com'
-          value=body.email
+          value=email
           required
         )
         if errors.email
@@ -55,11 +55,11 @@ block content
             ) #{size.name}: #{size.inches}"
         if errors.size
           span.help-block= errors.size.message
-      #toppings(name='toppings' class={'has-error': errors.toppings})
+      #toppings(class={'has-error': errors.toppings})
         h5 Toppings
         each topping in toppings
           label= topping.name
-            input(type='checkbox' value=topping.name selected=(body.toppings && body.toppings.includes(topping.name)))
+            input(type='checkbox' name="toppings" value=topping.name selected=(body.toppings && body.toppings.includes(topping.name)))
         if errors.toppings
           span.help-block= errors.toppings.message
       .order-form__submit

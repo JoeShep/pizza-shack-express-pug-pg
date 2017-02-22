@@ -31,7 +31,10 @@ if (process.env.NODE_ENV !== 'production') {
 // as well as application-level data
 app.locals.company = "🍕 Pizza Shack"
 app.locals.errors = {} // errors & body added to avoid guard statements
+
+// Is this called body because you use it to hold values for the templates?
 app.locals.body = {} // i.e. value=(body && body.name) vs. value=body.name
+
 // Silly ex to show in order template
 app.locals.body.magic = "fooooooo!"
 
@@ -67,9 +70,8 @@ app.use(passport.initialize())
 // This is why we have to serialize and deserialize as part of passport setup.
 app.use(passport.session())
 
-// wazzup here? setting 'email' to true if both user and user.email exist on the req object
+// wazzup here? Setting 'email' to req.user.email if user exists on the req object
 app.use((req, res, next) => {
-  // **********************user not being set on locals! **************************
   app.locals.email = req.user && req.user.email
   next()
 })

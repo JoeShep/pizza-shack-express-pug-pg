@@ -10,6 +10,8 @@ const HTML5_EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\
 // Note how we're connecting the Order model to Topping and Size:
 // BUT, our migrations also need to define a relationship between 
 // the tables the model represents based on foreign keys.
+
+// NOTE: Save relationships for API. Too much to cover here?
 const Order = bookshelf.Model.extend({
   tableName: 'orders',
   toppings: function() {

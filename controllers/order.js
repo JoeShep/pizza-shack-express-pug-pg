@@ -32,7 +32,8 @@ module.exports.new = (req, res, err) =>
       res.render('order', { page: 'Order', sizes, toppings})
     ).catch(err)
 
-module.exports.create = ({ body }, res, err) =>
+module.exports.create = ({ body }, res, err) => {
+  console.log("body", body );
   Order.forge(body)
     .save()
     .then((orderObj) => res.redirect('/'))
@@ -55,3 +56,4 @@ module.exports.create = ({ body }, res, err) =>
     //   res.render('order', { page: 'Order', sizes, toppings, errors, body })
     // )
     // .catch(err)
+}
