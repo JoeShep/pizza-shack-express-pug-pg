@@ -10,7 +10,10 @@ const session = require('express-session')
 const KnexSessionStore = require('connect-session-knex')(session);
 // to pretty up our error messages
 const { cyan, red } = require('chalk')
+require('./.env')
 
+//When you give a folder path to require, it does not load .js files inside that folder automatically. 
+// It looks for package.json file and if it's not there it loads index.js. i. e. It looks for an entry point.
 const routes = require('./routes/'); // same as ./routes/index.js
 
 const app = express()
@@ -55,7 +58,10 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'pizzashacksupersecretkey',
 }))
 
-// Don't need a varable to require something. Weird, eh?
+// Look, we wrote our own middleware!
+app.use( (req, res, next) => { console.log("USER ID?", req.session.passport.user); next()})
+
+// Don't need a varable to require something. Weird, eh? Require runs the code in the module.
 require('./lib/passport-strategies')
 app.use(passport.initialize())
 // passport.session() acts as a middleware to alter the req object and change the 'user' value 
@@ -72,10 +78,12 @@ app.use(passport.session())
 
 // wazzup here? Setting 'email' to req.user.email if user exists on the req object
 app.use((req, res, next) => {
+  // console.log("user????", req.session.user ); see Callan's notes for how it is different there
   app.locals.email = req.user && req.user.email
   next()
 })
 
+// For console logging the server activity every time we trigger a route
 app.use(({ method, url, headers: { 'user-agent': agent } }, res, next) => {
   const timeStamp = new Date()
   console.log(`[${timeStamp}] "${cyan(`${method} ${url}`)}" "${agent}"`)
@@ -95,6 +103,7 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(routes)
 
 // Custom 404 page <--- no next() here. How does it not hang? res.render() is the key.
+// This only gets triggered if the above routes don't match
 app.use((req, res) =>
   res.render('404')
 )
@@ -106,6 +115,7 @@ app.use((req, res) =>
 // such as an HTML error page, a simple message, or a JSON string.
 // How is this picked up in the sequence of events if the above res.render ends it? 
 // I guess that's a different end of the cycle?
+// NOTE the destructuring of the request object here
 app.use((err, { method, url, headers: { 'user-agent': agent } }, res, next) => {
   if (process.env.NODE_ENV === 'production') {
     res.sendStatus(err.status || 500)

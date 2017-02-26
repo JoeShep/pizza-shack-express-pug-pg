@@ -3,6 +3,8 @@ extends partials/layout.pug
 block content
   .heading
     h1 Contact Us
+    //- More playing with globals!
+    h3= JSON.stringify(user, null, 4)
   .contact-form
     form(method='POST')
       .form-group

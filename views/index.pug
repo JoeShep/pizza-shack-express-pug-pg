@@ -3,7 +3,10 @@ extends partials/layout.pug
 block content
   .welcome
     .welcome__text
-      h1 Welcome to the Pizza Shack!
+      if orderMsg
+        h1= orderMsg
+      else
+        h1 Welcome to the Pizza Shack!
     .welcome__image
       img(src='/images/pizza.jpg')
     //- Use to show how user gets added to locals

@@ -33,27 +33,26 @@ module.exports.new = (req, res, err) =>
     ).catch(err)
 
 module.exports.create = ({ body }, res, err) => {
-  console.log("body", body );
   Order.forge(body)
     .save()
-    .then((orderObj) => res.redirect('/'))
-
-    // Throws Error: Can't set headers after they are sent.
-
+    .then((orderObj) => {
+      res.render('index', {orderMsg: "Thanks for your order!"});
+      // res.redirect('/')
+    })
     // If it errors, redraw the page and add errors
-    // .catch(({ errors }) =>
-    //   Promise.all([ // retrieve sizes and toppings again,
-    //     Promise.resolve(errors), // but pass the errors along as well
-    //     getSizes(),
-    //     getToppings()
-    //   ])
-    // )
-    // .then(([errors, sizes, toppings]) =>
-    //   // UI/UX additions
-    //   // send errors to renderer to change styling and add error messages
-    //   // also, send the req.body to use as initial form input values so
-    //   // user can resubmit withour filling the damn thing out again
-    //   res.render('order', { page: 'Order', sizes, toppings, errors, body })
-    // )
-    // .catch(err)
+    .catch(({ errors }) =>
+      Promise.all([ // retrieve sizes and toppings again,
+        Promise.resolve(errors), // but pass the errors along as well
+        getSizes(),
+        getToppings()
+      ])
+    )
+    .then(([errors, sizes, toppings]) =>
+      // UI/UX additions
+      // send errors to renderer to change styling and add error messages
+      // also, send the req.body to use as initial form input values so
+      // user can resubmit withour filling the damn thing out again
+      res.render('order', { page: 'Order', sizes, toppings, errors, body })
+    )
+    .catch(err)
 }

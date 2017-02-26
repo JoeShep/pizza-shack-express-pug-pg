@@ -3,7 +3,7 @@
 const Contact = require('../models/contact')
 
 module.exports.new = (req, res) => {
-  res.render('contact', { page: 'Contact' })
+  res.render('contact', { page: 'Contact', user: req.user })
 }
 
 module.exports.addContact = ({ body }, res, err) => {

@@ -6,8 +6,10 @@
 
 const { Router } = require('express');
 
+// Router is a method on express that creates a new router object. Don't call 'new'. That don't work, bub
 const router = Router();
 
+// .use() can be passed a pathname. This is the mount point.
 // public routes
 router.use(require('./about'))
 router.use(require('./contact'))
@@ -15,14 +17,14 @@ router.use(require('./login'))
 router.use(require('./register'))
 router.use(require('./root'))
 
-// login guard middleware
-// router.use((req, res, next) => {
-//   if (req.isAuthenticated()) {
-//     next()
-//   } else {
-//     res.redirect('/login')
-//   }
-// })
+// login guard middleware. isAuthenticated is built into Passport, which adds it to the req object when you initialize it
+router.use((req, res, next) => {
+  if (req.isAuthenticated()) {
+    next()
+  } else {
+    res.redirect('/login')
+  }
+})
 
 // private routes
 router.use(require('./logout'))
